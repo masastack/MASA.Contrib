@@ -320,5 +320,29 @@ public class TestUnitOfWork : TestBase
         domainEventBus.Verify(eventBus => eventBus.PublishQueueAsync(), Times.Once());
     }
 
+    [TestMethod]
+    public void SetTemporaryCurrentDbContextOptions()
+    {
+        var services = new ServiceCollection();
+        services.AddScoped<IUnitOfWorkAccessor, UnitOfWorkAccessor>();
+        var connectionString = "test1";
+        var serviceProvider = services.BuildServiceProvider();
+        serviceProvider.GetRequiredService<IUnitOfWorkAccessor>().CurrentDbContextOptions =
+            new MasaDbContextConfigurationOptions(connectionString);
+
+        Assert.IsTrue(serviceProvider.GetRequiredService<IUnitOfWorkAccessor>().CurrentDbContextOptions!.ConnectionString ==
+            connectionString);
+
+        var connectionString2 = "test2";
+        using (serviceProvider.GetRequiredService<IUnitOfWorkAccessor>()
+                   .SetTemporaryCurrentDbContextOptions(new MasaDbContextConfigurationOptions(connectionString2)))
+        {
+            Assert.IsTrue(serviceProvider.GetRequiredService<IUnitOfWorkAccessor>().CurrentDbContextOptions!.ConnectionString ==
+                connectionString2);
+        }
+        Assert.IsTrue(serviceProvider.GetRequiredService<IUnitOfWorkAccessor>().CurrentDbContextOptions!.ConnectionString ==
+            connectionString);
+    }
+
     private string GetDataBaseConnectionString(CustomDbContext dbContext) => dbContext.Database.GetConnectionString()!;
 }

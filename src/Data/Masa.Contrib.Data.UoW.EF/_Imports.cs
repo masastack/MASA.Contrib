@@ -16,3 +16,4 @@ global using Microsoft.Extensions.Options;
 global using System.Data.Common;
 global using System.Text.Json.Serialization;
 global using EntityState = Masa.BuildingBlocks.Data.UoW.EntityState;
+global using Masa.Contrib.Data.UoW.EF.Internal;

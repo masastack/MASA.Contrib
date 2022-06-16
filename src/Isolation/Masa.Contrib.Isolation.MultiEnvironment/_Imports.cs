@@ -10,3 +10,4 @@ global using Masa.Contrib.Isolation.MultiEnvironment.Middleware;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
+global using Masa.Contrib.Isolation.MultiEnvironment.Internal;

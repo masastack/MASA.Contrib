@@ -23,6 +23,31 @@ public class TestEnvironment
     }
 
     [TestMethod]
+    public void TestSetTemporaryTenant()
+    {
+        var services = new ServiceCollection();
+        Mock<IIsolationBuilder> isolationBuilder = new();
+        isolationBuilder.Setup(builder => builder.Services).Returns(services).Verifiable();
+        isolationBuilder.Object.UseMultiTenant();
+
+        var serviceProvider = services.BuildServiceProvider();
+        Assert.IsTrue(serviceProvider.GetRequiredService<ITenantContext>().CurrentTenant == null);
+
+        var tenant = new Tenant("1");
+        serviceProvider.GetRequiredService<ITenantSetter>().SetTenant(tenant);
+        Assert.IsTrue(serviceProvider.GetRequiredService<ITenantContext>().CurrentTenant == tenant);
+
+        var tenant2 = new Tenant("2");
+        using (serviceProvider.GetRequiredService<ITenantSetter>().SetTemporaryTenant(tenant2))
+        {
+            var currentTenant = serviceProvider.GetRequiredService<ITenantContext>().CurrentTenant;
+            Assert.IsTrue(currentTenant == tenant2);
+            Assert.IsTrue(currentTenant != tenant);
+        }
+        Assert.IsTrue(serviceProvider.GetRequiredService<ITenantContext>().CurrentTenant == tenant);
+    }
+
+    [TestMethod]
     public void TestChangeType()
     {
         var convertProvider = new ConvertProvider();

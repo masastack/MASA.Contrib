@@ -22,6 +22,28 @@ public class TestEnvironment
     }
 
     [TestMethod]
+    public void TestSetTemporaryEnvironment()
+    {
+        var services = new ServiceCollection();
+        Mock<IIsolationBuilder> isolationBuilder = new();
+        isolationBuilder.Setup(builder => builder.Services).Returns(services).Verifiable();
+        isolationBuilder.Object.UseMultiEnvironment();
+
+        var serviceProvider = services.BuildServiceProvider();
+        Assert.IsTrue(string.IsNullOrEmpty(serviceProvider.GetRequiredService<IEnvironmentContext>().CurrentEnvironment));
+
+        serviceProvider.GetRequiredService<IEnvironmentSetter>().SetEnvironment("dev");
+        Assert.IsTrue(serviceProvider.GetRequiredService<IEnvironmentContext>().CurrentEnvironment == "dev");
+
+        using (serviceProvider.GetRequiredService<IEnvironmentSetter>().SetTemporaryEnvironment("production"))
+        {
+            var currentEnvironment = serviceProvider.GetRequiredService<IEnvironmentContext>().CurrentEnvironment;
+            Assert.IsTrue(currentEnvironment == "production");
+        }
+        Assert.IsTrue(serviceProvider.GetRequiredService<IEnvironmentContext>().CurrentEnvironment == "dev");
+    }
+
+    [TestMethod]
     public void TestUseMultiEnvironment()
     {
         IServiceCollection services = new ServiceCollection();

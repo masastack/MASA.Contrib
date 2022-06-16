@@ -1,6 +1,8 @@
 // Copyright (c) MASA Stack All rights reserved.
 // Licensed under the MIT License. See LICENSE.txt in the project root for license information.
 
+using Masa.BuildingBlocks.Isolation.MultiTenant;
+
 namespace Masa.Contrib.Isolation.UoW.EF.Web.Tests.EventHandlers;
 
 public class AddRoleEventHandler
@@ -9,10 +11,12 @@ public class AddRoleEventHandler
     private readonly IDataFilter _dataFilter;
     private readonly IEnvironmentSetter _environmentSetter;
     private readonly IEnvironmentContext _environmentContext;
+    private readonly ITenantContext _tenantContext;
 
-    public AddRoleEventHandler(CustomDbContext customDbContext, IDataFilter dataFilter, IEnvironmentSetter environmentSetter,
+    public AddRoleEventHandler(ITenantContext tenantContext,CustomDbContext customDbContext, IDataFilter dataFilter, IEnvironmentSetter environmentSetter,
         IEnvironmentContext environmentContext)
     {
+        _tenantContext = tenantContext;
         _customDbContext = customDbContext;
         _dataFilter = dataFilter;
         _environmentSetter = environmentSetter;

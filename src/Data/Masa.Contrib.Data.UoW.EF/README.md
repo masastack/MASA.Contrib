@@ -23,3 +23,5 @@ Install-Package Masa.Contrib.Data.EntityFrameworkCore.SqlServer
 ```C#
 builder.Services.AddEventBus(eventBusBuilder => eventBusBuilder.UseUoW<CustomDbContext>(dbOptions => dbOptions.UseSqlServer()));
 ```
+
+> Tip: UoW does not support multiple DbContexts
