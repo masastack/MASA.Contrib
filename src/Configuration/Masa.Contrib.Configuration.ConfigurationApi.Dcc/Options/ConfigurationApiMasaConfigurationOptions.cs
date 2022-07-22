@@ -11,7 +11,7 @@ public abstract class ConfigurationApiMasaConfigurationOptions : MasaConfigurati
     [JsonIgnore]
     public sealed override string? ParentSection => AppId;
 
-    public abstract string AppId { get; }
+    public virtual string AppId => StaticConfig.AppId;
 
     /// <summary>
     /// The section null means same as the class name, else load from the specify section

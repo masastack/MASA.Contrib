@@ -78,6 +78,62 @@ public class DccManageTest
     }
 
     [DataTestMethod]
+    [DataRow("Test", "Default", "DccTest")]
+    public async Task TestInitAsync(string environment, string cluster, string appId)
+    {
+        var configObjects = new Dictionary<string, string>
+        {
+            { "Appsettings", "{\"ConnectionStrings\":\"xxxx\"}" }
+        };
+        _callerProvider.Setup(factory => factory.PostAsync(It.IsAny<string>(), It.IsAny<object>(), false, default).Result).Returns(() => new HttpResponseMessage()
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(configObjects.Serialize(_jsonSerializerOptions))
+        }).Verifiable();
+
+        var manage = new ConfigurationApiManage(_callerProvider.Object, _dccSectionOptions, null);
+        await manage.InitAsync(environment, cluster, appId, configObjects);
+    }
+
+    [DataTestMethod]
+    [DataRow("Test", "Default", "DccTest")]
+    public async Task TestInitAsyncAndError(string environment, string cluster, string appId)
+    {
+        var configObjects = new Dictionary<string, string>
+        {
+            { "Appsettings", "{\"ConnectionStrings\":\"xxxx\"}" }
+        };
+
+        _callerProvider.Setup(factory => factory.PostAsync(It.IsAny<string>(), It.IsAny<object>(), false, default).Result).Returns(() => new HttpResponseMessage()
+        {
+            StatusCode = HttpStatusCode.ExpectationFailed,
+            Content = new StringContent("error")
+        }).Verifiable();
+
+        var manage = new ConfigurationApiManage(_callerProvider.Object, _dccSectionOptions, null);
+        await Assert.ThrowsExceptionAsync<HttpRequestException>(async () => await manage.InitAsync(environment, cluster, appId, configObjects));
+    }
+
+    [DataTestMethod]
+    [DataRow("Test", "Default", "DccTest")]
+    public async Task TestInitAsyncAndCustomError(string environment, string cluster, string appId)
+    {
+        var configObjects = new Dictionary<string, string>
+        {
+            { "Appsettings", "{\"ConnectionStrings\":\"xxxx\"}" }
+        };
+
+        _callerProvider.Setup(factory => factory.PostAsync(It.IsAny<string>(), It.IsAny<object>(), false, default).Result).Returns(() => new HttpResponseMessage()
+        {
+            StatusCode = (HttpStatusCode)299,
+            Content = new StringContent("custom error")
+        }).Verifiable();
+
+        var manage = new ConfigurationApiManage(_callerProvider.Object, _dccSectionOptions, null);
+        await Assert.ThrowsExceptionAsync<HttpRequestException>(async () => await manage.InitAsync(environment, cluster, appId, configObjects));
+    }
+
+    [DataTestMethod]
     [DataRow("DccTest", "Secret")]
     [DataRow("DccTest2", "Secret2")]
     [DataRow("DccTest3", "")]
